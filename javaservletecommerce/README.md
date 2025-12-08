@@ -1,3 +1,3 @@
-Java >= 1.8.0_252
+Java >= 17
 
 loader/DataLoader implements GSuite spreadsheet data loader into database
