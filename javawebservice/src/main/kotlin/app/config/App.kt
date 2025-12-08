@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
 import io.javalin.Javalin
-import io.javalin.plugin.json.JavalinJackson
+import io.javalin.json.JavalinJackson
 
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory
 import org.eclipse.jetty.http2.HTTP2Cipher
@@ -46,16 +46,18 @@ class App : KoinComponent {
 
 		this.configureDateMapper()
 
-		val app = Javalin.create {
-			it.server { createHttpServer() }
-			it.enableCorsForAllOrigins()
-			it.contextPath = "/api"
-			/*it.enableDevLogging()*/
-			it.enableWebjars()
-			it.addStaticFiles("/public")
-			it.addSinglePageRoot("","/public/index.html")
-		}.events {
-			it.serverStopping {
+		val app = Javalin.create { config ->
+			config.server { createHttpServer() }
+			config.plugins.enableCors { cors ->
+				cors.addRule { it.anyHost() }
+			}
+			config.contextPath = "/api"
+			/*config.plugins.enableDevLogging()*/
+			config.plugins.enableWebjars()
+			config.staticFiles.add("/public")
+			config.spaRoot.addFile("/", "/public/index.html")
+		}.events { event ->
+			event.serverStopping {
 				stopKoin()
 			}
 		}.start()
@@ -73,7 +75,7 @@ class App : KoinComponent {
 			defaultProtocol = "h2"
 		}
 
-		val sslContextFactory = SslContextFactory().apply {
+		val sslContextFactory = SslContextFactory.Server().apply {
 			keyStorePath = this::class.java.getResource("/mykeystore.jks").toExternalForm()
 			setKeyStorePassword("password")
 			cipherComparator = HTTP2Cipher.COMPARATOR
@@ -93,18 +95,15 @@ class App : KoinComponent {
 
 		HttpConnectionFactory(httpsConfig)
 
-		return Server().apply {
-			addConnector(
-				ServerConnector(server).apply {
-					port = 8080
-				}
-			)
-			addConnector(
-				ServerConnector(server, sslContextFactory).apply {
-					port = 8443
-				}
-			)
+		val server = Server()
+		val httpConnector = ServerConnector(server).apply {
+			port = 8080
 		}
+		val httpsConnector = ServerConnector(server, sslContextFactory).apply {
+			port = 8443
+		}
+		server.connectors = arrayOf(httpConnector, httpsConnector)
+		return server
 
 	}
 

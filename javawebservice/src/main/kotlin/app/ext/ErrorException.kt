@@ -26,7 +26,7 @@ object ErrorException {
 	fun register(app: Javalin) {
 		app.exception(Exception::class.java) { e, ctx ->
 			LOG.error("Exception occurred for req -> ${ctx.url()}", e)
-			val error = ErrorResponse(mapOf("Unknow Error" to listOf(e.message ?: "Error occurred!")))
+			val error = ErrorResponse(mapOf("Unknown Error" to listOf(e.message ?: "Error occurred!")))
 			ctx.json(error).status(HttpStatus.INTERNAL_SERVER_ERROR_500)
 		}
 		app.exception(ExposedSQLException::class.java) { e, ctx ->
