@@ -1,4 +1,4 @@
-Java >= 11
+Java >= 17
 
 javawebservice is a Javalin (Service Oriented Architecture) based MicroFramework rest api server application.
 
