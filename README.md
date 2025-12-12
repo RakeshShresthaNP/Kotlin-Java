@@ -4,7 +4,7 @@ javawebservice is a Javalin (Service Oriented Architecture) based MicroFramework
 
 Javalin has automated plugins for JSON mapping, Web Sockets, template rendering, and OpenAPI (Swagger).
 
-As to me it's better than spark framework.
+As to me it's better than spark framework for many startup projects.
 
 This codebase demonstrates implementation of crud operations, authentication, routing, pagination, unit test and openapi (partial).
 
